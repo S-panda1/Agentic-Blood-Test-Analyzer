@@ -1,0 +1,16 @@
+click==8.1.7
+crewai==0.130.0
+crewai-tools==0.14.0
+
+
+fastapi==0.115.9
+uvicorn==0.29.0
+python-dotenv==1.0.0
+
+
+rq
+redis
+SQLAlchemy
+langchain-community
+
+python-multipart

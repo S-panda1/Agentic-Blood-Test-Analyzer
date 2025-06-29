@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blood Test Report Analyzer</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 900px; margin: auto; }
+    h2 { margin-top: 30px; }
+    pre { white-space: pre-wrap; background: #f3f3f3; padding: 10px; border-radius: 5px; }
+    .key { color: brown; }
+    .string { color: green; }
+    .number { color: darkorange; }
+    .boolean { color: blue; }
+    .null { color: gray; }
+  </style>
+</head>
+<body>
+  <h1>🧪 Blood Test Report Analyzer</h1>
+
+  <form id="upload-form">
+    <input type="file" id="file" required />
+    <label for="query"><strong>Enter your query:</strong></label><br>
+<textarea id="query" rows="4" style="width: 100%; margin-top: 6px;" placeholder="Summarise my Blood Test Report">Summarise my Blood Test Report</textarea>
+
+    <button type="submit">Analyze</button>
+  </form>
+
+  <div id="status" style="margin-top: 10px;"></div>
+  <div id="result"></div>
+
+  <h2>📜 Past Analyses</h2>
+  <button onclick="loadHistory()">Refresh History</button>
+  <div id="history"></div>
+
+  <script>
+    const API_BASE = "http://localhost:8000";
+
+    document.getElementById("upload-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById("file");
+      const query = document.getElementById("query").value;
+
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+      formData.append("query", query);
+
+      document.getElementById("status").innerText = "⏳ Analyzing...";
+      const res = await fetch(`${API_BASE}/analyze`, { method: "POST", body: formData });
+      const data = await res.json();
+
+      if (!data.job_id) {
+        document.getElementById("status").innerText = "✅ Analysis Complete!";
+        document.getElementById("result").innerHTML = `<h3>Result</h3><pre>${prettyPrintJSON(data.analysis)}</pre>`;
+        return;
+      }
+
+      const jobId = data.job_id;
+      const poll = setInterval(async () => {
+        const res = await fetch(`${API_BASE}/result/${jobId}`);
+        const result = await res.json();
+        if (result.status === "finished") {
+          clearInterval(poll);
+          document.getElementById("status").innerText = "✅ Analysis Complete!";
+          document.getElementById("result").innerHTML = `<h3>Result</h3><pre>${prettyPrintJSON(result.result)}</pre>`;
+        } else {
+          document.getElementById("status").innerText = `⏳ Waiting... (${result.status})`;
+        }
+      }, 2000);
+    });
+
+    async function loadHistory() {
+      const res = await fetch(`${API_BASE}/history`);
+      const history = await res.json();
+      console.log("History loaded:", history);
+      const html = history.map(entry => `
+        <div style="margin-bottom: 15px;">
+          <strong>${entry.file_name}</strong> – ${new Date(entry.created_at).toLocaleString()}
+          <pre>${entry.query}</pre>
+          <details><summary>Show result</summary><pre>${prettyPrintJSON(entry.result)}</pre></details>
+        </div>
+      `).join("");
+      document.getElementById("history").innerHTML = html;
+    }
+
+    function prettyPrintJSON(jsonStringOrObj) {
+      let obj = jsonStringOrObj;
+      if (typeof jsonStringOrObj === "string") {
+        try {
+          obj = JSON.parse(jsonStringOrObj);
+        } catch (e) {
+          return jsonStringOrObj;
+        }
+      }
+      return syntaxHighlight(JSON.stringify(obj, null, 2));
+    }
+
+    function syntaxHighlight(json) {
+      if (typeof json != 'string') {
+        json = JSON.stringify(json, undefined, 2);
+      }
+      json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\\s*:)?|\\b(true|false|null)\\b|-?\\d+(\\.\\d*)?(?:[eE][+\\-]?\\d+)?)/g, function (match) {
+        let cls = 'number';
+        if (/^"/.test(match)) {
+          cls = /:$/.test(match) ? 'key' : 'string';
+        } else if (/true|false/.test(match)) {
+          cls = 'boolean';
+        } else if (/null/.test(match)) {
+          cls = 'null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+      });
+    }
+
+    loadHistory();
+  </script>
+</body>
+</html>
