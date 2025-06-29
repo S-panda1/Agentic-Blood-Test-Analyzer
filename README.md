@@ -10,8 +10,8 @@ Follow these steps to run the Blood Test Analyzer — works locally via FastAPI 
 ### ✅ 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/blood-test-analyzer.git
-cd blood-test-analyzer
+https://github.com/S-panda1/Blood-test-analysis-system-Subhankar-Panda.git
+cd Blood-test-analysis-system-Subhankar-Panda
 ```
 
 ### ✅ 2. Create and Activate a Virtual Environment
