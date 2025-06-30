@@ -97,13 +97,12 @@ http://127.0.0.1:8000 # The server will start here
 - ✅ **Static file serving**
   - Mounted `/static` for frontend integration.
 
-#### 📊 `tasks.py`
+#### 📊 `task.py`
 
-- ✅ **Background job support**
-  - Integrated Redis + RQ for async processing.
-- ✅ **Persistent storage**
-  - All results are saved in the database.
-  
+- ✅ **Fixed Ambiguous/Misleading prompts and imported correct tools**
+  - Gave clear instructions to the agent on how to deal with patient questions with appropriate structured responses to provide.
+  - Imported nutritionist, exercise_specialist along with their respective tools  NutritionTool, ExerciseTool.
+
 ### Extra Files Added
 These additional files extend the system for modularity, background processing, and data persistence:
 
