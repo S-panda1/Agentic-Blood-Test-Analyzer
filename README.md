@@ -58,65 +58,6 @@ http://127.0.0.1:8000 # The server will start here
 
 ```
 
-## 🐞 Bugs Found and Improvements made (Database integration + Queue Worker Model)
-
----
-
-### 🔧 Bugs Fixed & Features Added
-
-#### 🗂 `tools.py`
-
-- ✅ **Properly implemented CrewAI tools**
-  - Refactored custom tools (`BloodTestReportTool`, `NutritionTool`, `ExerciseTool`) to subclass `BaseTool` with `_run()` method.
-- ✅ **Fixed PDF parsing**
-  - Imported missing `PyPDFLoader` from `langchain_community.document_loaders`.
-- ✅ **Dynamic input**
-  - Tools now accept dynamic `file_path` instead of using hardcoded values.
-- ✅ **Implemented LLM logic**
-  - Implemented the logic for Nutrition and exercise tools to generate intelligent plans using `LLM(model="gemini/gemini-2.0-flash")`.
-
-#### 👨‍⚕️ `agents.py`
-
-- ✅ **Replaced placeholder agents**
-  - Created realistic agents: `doctor`, `nutritionist`, `verifier`, and `exercise_specialist`, with better prompt engineering, rather than the existing harmful and misleading prompts.
-- ✅ **Correct tool usage**
-  - Tools are now passed as instantiated objects, not broken method calls.
-- ✅ **LLM configuration**
-  - All agents use `crewai.LLM()` for consistent behavior and better reasoning.
-
-#### 🚀 `main.py`
-
-- ✅ **Runs a full 4-agent Crew**
-  - Crew includes: `verifier`, `doctor`, `nutritionist`, and `exercise_specialist`.
-- ✅ **Safe task execution**
-  - Introduced `safe_output()` to prevent failures from crashing the response pipeline.
-- ✅ **File validation**
-  - Checks for empty uploads and missing query inputs.
-- ✅ **Integrated SQLite**
-  - Stores all results using SQLAlchemy ORM.
-- ✅ **Static file serving**
-  - Mounted `/static` for frontend integration.
-
-#### 📊 `task.py`
-
-- ✅ **Fixed Ambiguous/Misleading prompts and imported correct tools**
-  - Gave clear instructions to the agent on how to deal with patient questions with appropriate structured responses to provide.
-  - Imported nutritionist, exercise_specialist along with their respective tools  NutritionTool, ExerciseTool.
-
-### Extra Files Added
-These additional files extend the system for modularity, background processing, and data persistence:
-
-#### `tasks.py`
-Defines all CrewAI `Task` objects like report verification, medical analysis, nutrition, and exercise planning. Tasks use agent context and tools to operate sequentially.
-
-#### `db.py`
-Initializes a local SQLite DB with `SQLAlchemy`. Stores uploaded file metadata, query, and generated results for history tracking.
-
-#### `redis_connect.py`
-Establishes a shared Redis connection using `REDIS_URL` from `.env`. Used across background task modules to ensure clean connectivity.
-
-#### `worker.py`
-Starts an RQ (Redis Queue) worker to process queued tasks. Run it in a separate terminal to enable asynchronous execution.
 
 ## API Documentation
 
