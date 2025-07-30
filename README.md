@@ -57,7 +57,96 @@ uvicorn main:app --reload
 http://127.0.0.1:8000 # The server will start here
 
 ```
+## 🐞 Bugs Found and Improvements Made
+**(Database Integration + Queue Worker Model)**
 
+### 🔧 Bugs Fixed & Features Added
+
+---
+
+### 🗂 `tools.py`
+- ✅ **Proper CrewAI Tool Implementation**  
+  Refactored all custom tools (`BloodTestReportTool`, `NutritionTool`, `ExerciseTool`) to subclass `BaseTool` using `_run()` method.
+- ✅ **PDF Parsing Fixed**  
+  Added missing import: `PyPDFLoader` from `langchain_community.document_loaders`.
+- ✅ **Dynamic File Handling**  
+  Tools now take dynamic `file_path` inputs instead of hardcoded values.
+- ✅ **LLM-Backed Logic**  
+  Nutrition and exercise tools now generate intelligent plans using `LLM(model="gemini/gemini-2.0-flash")`.
+
+---
+
+### 👨‍⚕️ `agents.py`
+- ✅ **Realistic Agent Design**  
+  Replaced harmful placeholders with well-prompted agents:
+  - `doctor`
+  - `nutritionist`
+  - `exercise_specialist`
+  - `verifier`
+- ✅ **Proper Tool Integration**  
+  Tools passed as instantiated objects instead of broken method calls.
+- ✅ **LLM Setup Standardized**  
+  All agents use `crewai.LLM()` for consistent, high-quality reasoning.
+
+---
+
+### 🚀 `main.py`
+- ✅ **4-Agent Crew Setup**  
+  Crew includes: `verifier`, `doctor`, `nutritionist`, `exercise_specialist`.
+- ✅ **Safe Output Handling**  
+  Introduced `safe_output()` to gracefully handle failures.
+- ✅ **File Validation Added**  
+  Now checks for:
+  - Empty uploads
+  - Missing query inputs
+- ✅ **SQLite Integration**  
+  Stores reports, queries, and results using SQLAlchemy ORM.
+- ✅ **Static File Mounting**  
+  `/static` mounted for frontend integration.
+
+---
+
+### 📊 `task.py`
+- ✅ **Prompt Fixes & Clarity**  
+  Rewrote ambiguous prompts for structured, professional medical outputs.
+- ✅ **Correct Imports**  
+  Now correctly imports `nutritionist`, `exercise_specialist` agents and their tools.
+
+---
+
+## 🧩 Extra Files Added
+
+---
+
+### 🧠 `tasks.py`
+Defines all CrewAI Task objects such as:
+- Report verification  
+- Medical analysis  
+- Nutrition planning  
+- Exercise suggestions  
+Tasks use proper agent context and tools, executed sequentially.
+
+---
+
+### 🗃 `db.py`
+- Sets up a local **SQLite DB** using **SQLAlchemy**.
+- Stores:
+  - Uploaded file metadata
+  - User queries
+  - Generated outputs
+
+---
+
+### 🔁 `redis_connect.py`
+- Establishes a shared **Redis** connection.
+- Uses `REDIS_URL` from `.env`.
+- Shared across async worker modules.
+
+---
+
+### ⚙️ `worker.py`
+- Runs an **RQ (Redis Queue)** worker.
+- Use in a separate terminal for **asynchronous background execution**.
 
 ## API Documentation
 
